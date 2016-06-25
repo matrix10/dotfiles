@@ -18,6 +18,8 @@ endif
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+source ~/.vimrc.bundles
+
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
@@ -113,10 +115,101 @@ nmap <leader>w :w<CR>
 nmap <leader>q :q<CR>
 imap <C-n> <ESC>
 
-" Tag list
-" let Tlist_Ctags_Cmd = '/home/killer/local/bin/ctags'
-" set tags=/home/killer/workspace/tags
-let Tlist_Exit_OnlyWindow = 1
-let Tlist_Use_Right_Window = 1
-let Tlist_File_Fold_Auto_Close = 1
-let Tlist_Auto_Open = 1
+
+" NerdTree
+if isdirectory(expand("~/.vim/bundle/nerdtree"))
+	map <C-e> <plug>NERDTreeTabsToggle<CR>
+	map <leader>e :NERDTreeFind<CR>
+	nmap <leader>nt :NERDTreeFind<CR>
+
+	let NERDTreeShowBookmarks=1
+	let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
+	let NERDTreeChDirMode=0
+	let NERDTreeQuitOnOpen=1
+	let NERDTreeMouseMode=2
+	let NERDTreeShowHidden=1
+	let NERDTreeKeepTreeInNewTab=1
+	let g:nerdtree_tabs_open_on_gui_startup=0
+endif
+
+" ctrlp {
+	if isdirectory(expand("~/.vim/bundle/ctrlp.vim/"))
+		let g:ctrlp_working_path_mode = 'ra'
+		nnoremap <silent> <D-t> :CtrlP<CR>
+		nnoremap <silent> <D-r> :CtrlPMRU<CR>
+		let g:ctrlp_custom_ignore = {
+					\ 'dir':  '\.git$\|\.hg$\|\.svn$',
+					\ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$' }
+
+		if executable('ag')
+			let s:ctrlp_fallback = 'ag %s --nocolor -l -g ""'
+		elseif executable('ack-grep')
+			let s:ctrlp_fallback = 'ack-grep %s --nocolor -f'
+		elseif executable('ack')
+			let s:ctrlp_fallback = 'ack %s --nocolor -f'
+		else
+			let s:ctrlp_fallback = 'find %s -type f'
+		endif
+		if exists("g:ctrlp_user_command")
+			unlet g:ctrlp_user_command
+		endif
+		let g:ctrlp_user_command = {
+					\ 'types': {
+					\ 1: ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others'],
+					\ 2: ['.hg', 'hg --cwd %s locate -I .'],
+					\ },
+					\ 'fallback': s:ctrlp_fallback
+					\ }
+
+		if isdirectory(expand("~/.vim/bundle/ctrlp-funky/"))
+			" CtrlP extensions
+			let g:ctrlp_extensions = ['funky']
+
+			"funky
+			nnoremap <Leader>fu :CtrlPFunky<Cr>
+		endif
+	endif
+" }
+
+" YouCompleteMe {
+	if isdirectory(expand("~/.vim/bundle/YouCompleteMe/"))
+		let g:acp_enableAtStartup = 0
+
+		" enable completion from tags
+		let g:ycm_collect_identifiers_from_tags_files = 1
+
+		" remap Ultisnips for compatibility for YCM
+		let g:UltiSnipsExpandTrigger = '<C-j>'
+		let g:UltiSnipsJumpForwardTrigger = '<C-j>'
+		let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+
+		" Enable omni completion.
+		autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+		autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+		autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+		autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+		autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+		autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+		autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+
+		" Haskell post write lint and check with ghcmod
+		" $ `cabal install ghcmod` if missing and ensure
+		" ~/.cabal/bin is in your $PATH.
+		if !executable("ghcmod")
+			autocmd BufWritePost *.hs GhcModCheckAndLintAsync
+		endif
+
+		" For snippet_complete marker.
+		if !exists("g:spf13_no_conceal")
+			if has('conceal')
+				set conceallevel=2 concealcursor=i
+			endif
+		endif
+
+		" Disable the neosnippet preview candidate window
+		" When enabled, there can be too much visual noise
+		" especially when splits are used.
+		set completeopt-=preview
+	endif
+" }
+
