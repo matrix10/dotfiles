@@ -16,6 +16,9 @@ Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'tacahiroy/ctrlp-funky'
 Plugin 'majutsushi/tagbar'
 
+"Plugin 'vim-scripts/Conque-Shell'
+Plugin 'lrvick/Conque-Shell'
+
 "Plugin 'Shougo/neocomplete.vim.git'
 "Plugin 'Shougo/neosnippet'
 "Plugin 'Shougo/neosnippet-snippets'
